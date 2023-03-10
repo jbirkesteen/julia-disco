@@ -256,24 +256,30 @@ begin
 	simulations = 1000
 
 	function play_games(N::Int64, means)
-		function generate_points(N, lambda)
+		function generate_points(rounds, lambda)
 			tmp = 0
-			for i in 1:N
+			for i in 1:rounds
 				tmp += pois_rand(lambda)
 			end
 			return tmp
 		end
 				
 		remaining_rounds = 11
-		results_dict = Dict("Niko" => 0, "Mag" => 0, "Jake" => 0)
-		for (player, lambda) in means
-			results_dict[player] += generate_points(remaining_rounds, lambda)
+		results_dict = Dict("Niko" => zeros(Int64, N),
+							"Mag" => zeros(Int64, N),
+							"Jake" => zeros(Int64, N))
+
+		for i in 1:N
+			for (player, lambda) in means
+				results_dict[player][i] = generate_points(remaining_rounds, lambda)
+			end
 		end
 		return results_dict
 	end
 		
 	observed_means = Dict("Niko" => 37.0, "Mag" => 34.3, "Jake" => 33.8)	
-	play_games(simulations, observed_means)
+	simulated_outcomes = play_games(simulations, observed_means)
+	DataFrame(simulated_outcomes)
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
