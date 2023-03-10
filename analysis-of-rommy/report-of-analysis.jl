@@ -263,7 +263,9 @@ end
 
 # ╔═╡ df735d17-00c1-4cbf-a64f-8c6f5947a948
 md"## Predicting a winner
-Idea:\n Use first 40 games to get the distribution of each player's points, draw many times from these distributions for the next 20 games and see who most often turns out winning."
+*Idea:*  
+
+Use first 50 games to get the distribution of each player's points, draw many times from these distributions for the next 20 games and see who most often turns out winning."
 
 # ╔═╡ 83c3c22b-94ef-41e7-86b5-11bca8c608c1
 pois_rand(37.0)
