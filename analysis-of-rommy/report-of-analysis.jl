@@ -172,19 +172,6 @@ end
 md"## Violin plot
 A violin plot showing the distribution of each player's points"
 
-# ╔═╡ 4dfeb24b-6646-44db-8bb1-87572d900bcf
-begin
-	# stats_per_game
-	# stacked_points = stack(select(stats_per_game, Not(r"^(score)")), r"^(point)", variable_name=:player, value_name=:point)
-	# remove_point(x::String) = x[8:end]
-	# transform!(stacked_points, :player => ByRow(remove_point) => :player)
-	# player_ids = Dict("Niko" => 1, "Mag" => 2, "Jake" => 3)
-	# lookup(name) = player_ids[name]
-	# tmp_stacked_points = transform(stacked_points, :player => ByRow(lookup) => :player_id)
-	# #violin(tmp_stacked_points.player_id, tmp_stacked_points.point)
-	# plot_grouped_dynamic_final(tmp_stacked_points, :player_id, :point, :player, violin!)
-end
-
 # ╔═╡ 5064134d-a958-4265-a38f-18077715cb33
 begin
 	violin_data = data(stacked_stats) * mapping(
@@ -1681,7 +1668,6 @@ version = "3.5.0+0"
 # ╠═855115cc-c81a-441a-b405-66be35d1d28f
 # ╠═681fadb2-f463-41c5-912d-5b13005867d4
 # ╟─0961848d-8ba8-465b-af7e-817917341d7c
-# ╠═4dfeb24b-6646-44db-8bb1-87572d900bcf
 # ╠═5064134d-a958-4265-a38f-18077715cb33
 # ╠═bbdab40f-75cc-46e4-8aa4-31cf4c4811e5
 # ╠═4b47ca30-9e39-4b39-821d-31945161b8d0
