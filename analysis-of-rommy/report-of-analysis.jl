@@ -13,7 +13,7 @@ begin
 	using AlgebraOfGraphics
 	using AlgebraOfGraphics: density
 	CairoMakie.activate!()
-	#using DataFramesMeta
+	using DataFramesMeta
 	message_data_file = joinpath(dirname(@__FILE__), "data", 									"prepared_messages.json")
 	json_data = JSON.parsefile(message_data_file)
 end
@@ -126,18 +126,11 @@ begin
 	
 end
 
-# ╔═╡ a9b1815f-86df-46ad-b350-1bd0d5c73e5a
-md"## First plot: Score trajectory"
-
-# ╔═╡ 4dc173b7-464a-4ac1-88e0-586fa084a77b
-begin
-	data_matrix = [stats_per_game.score_Mag, stats_per_game.score_Niko, stats_per_game.score_Jake]
-	
-	fig, ax, mag = series(data_matrix)
-end
-
 # ╔═╡ f5059b6b-6d98-4050-a54c-899f1727336f
 md"## Experimenting with plotting"
+
+# ╔═╡ a9b1815f-86df-46ad-b350-1bd0d5c73e5a
+md"### First plot: Score trajectory"
 
 # ╔═╡ 855115cc-c81a-441a-b405-66be35d1d28f
 begin
@@ -178,19 +171,6 @@ end
 # ╔═╡ 0961848d-8ba8-465b-af7e-817917341d7c
 md"## Violin plot
 A violin plot showing the distribution of each player's points"
-
-# ╔═╡ 4dfeb24b-6646-44db-8bb1-87572d900bcf
-begin
-	# stats_per_game
-	# stacked_points = stack(select(stats_per_game, Not(r"^(score)")), r"^(point)", variable_name=:player, value_name=:point)
-	# remove_point(x::String) = x[8:end]
-	# transform!(stacked_points, :player => ByRow(remove_point) => :player)
-	# player_ids = Dict("Niko" => 1, "Mag" => 2, "Jake" => 3)
-	# lookup(name) = player_ids[name]
-	# tmp_stacked_points = transform(stacked_points, :player => ByRow(lookup) => :player_id)
-	# #violin(tmp_stacked_points.player_id, tmp_stacked_points.point)
-	# plot_grouped_dynamic_final(tmp_stacked_points, :player_id, :point, :player, violin!)
-end
 
 # ╔═╡ 5064134d-a958-4265-a38f-18077715cb33
 begin
@@ -263,10 +243,9 @@ end
 
 # ╔═╡ df735d17-00c1-4cbf-a64f-8c6f5947a948
 md"## Predicting a winner
-Idea:\n Use first 40 games to get the distribution of each player's points, draw many times from these distributions for the next 20 games and see who most often turns out winning."
+*Idea:*  
 
-# ╔═╡ 83c3c22b-94ef-41e7-86b5-11bca8c608c1
-pois_rand(37.0)
+Use first 50 games to get the distribution of each player's points, draw many times from these distributions for the next 20 games and see who most often turns out winning."
 
 # ╔═╡ 16237c6b-b9d7-4ae9-afe1-ccdcf2f4a5e7
 begin
@@ -274,24 +253,58 @@ begin
 	simulations = 1000
 
 	function play_games(N::Int64, means)
-		function generate_points(N, lambda)
+		function generate_points(rounds, lambda)
 			tmp = 0
-			for i in 1:N
+			for i in 1:rounds
 				tmp += pois_rand(lambda)
 			end
 			return tmp
 		end
 				
 		remaining_rounds = 11
-		results_dict = Dict("Niko" => 0, "Mag" => 0, "Jake" => 0)
-		for (player, lambda) in means
-			results_dict[player] += generate_points(remaining_rounds, lambda)
+		results_dict = Dict("Niko" => zeros(Int64, N),
+							"Mag" => zeros(Int64, N),
+							"Jake" => zeros(Int64, N))
+
+		for i in 1:N
+			for (player, lambda) in means
+				results_dict[player][i] = generate_points(remaining_rounds, lambda)
+			end
 		end
 		return results_dict
 	end
 		
 	observed_means = Dict("Niko" => 37.0, "Mag" => 34.3, "Jake" => 33.8)	
-	play_games(simulations, observed_means)
+	simulated_outcomes = play_games(simulations, observed_means)
+	outcomes_df = DataFrame(simulated_outcomes)
+	
+end
+
+# ╔═╡ 12dc1669-1ace-4d08-bcbd-bd2aa793e49e
+begin
+	max_tuples = findmax.(eachrow(outcomes_df))
+	simulated_winners = select(DataFrame(max_tuples),
+							   1 => "Points",
+							   2 => "Winner")
+	simulation_plot = data(simulated_winners) * mapping(:Winner; color=:Winner) * frequency()
+	draw(simulation_plot)
+end
+
+# ╔═╡ ad201993-c48e-4007-a0f5-4efd31baec34
+begin
+	winners_in_test_set = @chain stacked_stats_winners begin 
+		@rsubset(:game_id > 50)
+		first(11)
+		select(:winner => :Winner, :points => :Points)
+		@rtransform(:type = "Actual",
+					:Winner = Symbol(:Winner))
+	end
+	
+	simulated_winners.type .= "Simulation"
+	combined_df = [winners_in_test_set; simulated_winners]
+	actual_plot = data(combined_df) * mapping(:Winner, color=:Winner, layout=:type) * frequency()
+	draw(actual_plot, facet=(; linkyaxes=:none))
+
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -300,6 +313,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+DataFramesMeta = "1313f7d8-7da2-5740-9ea0-a2ca25f37964"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 PoissonRandom = "e409e4f3-bfea-5376-8464-e040bb5c01ab"
@@ -310,6 +324,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 AlgebraOfGraphics = "~0.6.14"
 CairoMakie = "~0.10.2"
 DataFrames = "~1.5.0"
+DataFramesMeta = "~0.13.0"
 JSON = "~0.21.3"
 PoissonRandom = "~0.4.3"
 """
@@ -320,7 +335,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "25059f662edb56adb600934900f96325dc3f0701"
+project_hash = "6cf6ddc28f06f63f9a11a4f0413328964152753e"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -417,6 +432,11 @@ git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
 uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
 version = "0.5.1"
 
+[[deps.Chain]]
+git-tree-sha1 = "8c4920235f6c561e401dfe569beb8b924adad003"
+uuid = "8be319e6-bccf-4806-a6f7-6fae938471bc"
+version = "0.5.0"
+
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
 git-tree-sha1 = "c6d890a52d2c4d55d326439580c3b8d0875a77d9"
@@ -496,6 +516,12 @@ deps = ["Compat", "DataAPI", "Future", "InlineStrings", "InvertedIndices", "Iter
 git-tree-sha1 = "aa51303df86f8626a962fccb878430cdb0a97eee"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 version = "1.5.0"
+
+[[deps.DataFramesMeta]]
+deps = ["Chain", "DataFrames", "MacroTools", "OrderedCollections", "Reexport"]
+git-tree-sha1 = "f9db5b04be51162fbeacf711005cb36d8434c55b"
+uuid = "1313f7d8-7da2-5740-9ea0-a2ca25f37964"
+version = "0.13.0"
 
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -1681,13 +1707,11 @@ version = "3.5.0+0"
 # ╟─9be53374-d051-42c6-9e4b-bf5ab3260997
 # ╠═93aa3f9f-21d2-422d-b5db-2bbb1bf7e354
 # ╠═cf757ba2-5f47-427b-b15b-e5583f83073c
-# ╟─a9b1815f-86df-46ad-b350-1bd0d5c73e5a
-# ╠═4dc173b7-464a-4ac1-88e0-586fa084a77b
 # ╟─f5059b6b-6d98-4050-a54c-899f1727336f
+# ╟─a9b1815f-86df-46ad-b350-1bd0d5c73e5a
 # ╠═855115cc-c81a-441a-b405-66be35d1d28f
 # ╠═681fadb2-f463-41c5-912d-5b13005867d4
 # ╟─0961848d-8ba8-465b-af7e-817917341d7c
-# ╠═4dfeb24b-6646-44db-8bb1-87572d900bcf
 # ╠═5064134d-a958-4265-a38f-18077715cb33
 # ╠═bbdab40f-75cc-46e4-8aa4-31cf4c4811e5
 # ╠═4b47ca30-9e39-4b39-821d-31945161b8d0
@@ -1697,7 +1721,8 @@ version = "3.5.0+0"
 # ╠═4e10ef20-cc5b-4a16-adfb-30e8b7829102
 # ╠═df735d17-00c1-4cbf-a64f-8c6f5947a948
 # ╠═97cf6bcb-715f-4209-a1e7-42e314f23863
-# ╠═83c3c22b-94ef-41e7-86b5-11bca8c608c1
 # ╠═16237c6b-b9d7-4ae9-afe1-ccdcf2f4a5e7
+# ╠═12dc1669-1ace-4d08-bcbd-bd2aa793e49e
+# ╠═ad201993-c48e-4007-a0f5-4efd31baec34
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
