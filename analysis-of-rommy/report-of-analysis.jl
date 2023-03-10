@@ -126,18 +126,11 @@ begin
 	
 end
 
-# ╔═╡ a9b1815f-86df-46ad-b350-1bd0d5c73e5a
-md"## First plot: Score trajectory"
-
-# ╔═╡ 4dc173b7-464a-4ac1-88e0-586fa084a77b
-begin
-	data_matrix = [stats_per_game.score_Mag, stats_per_game.score_Niko, stats_per_game.score_Jake]
-	
-	fig, ax, mag = series(data_matrix)
-end
-
 # ╔═╡ f5059b6b-6d98-4050-a54c-899f1727336f
 md"## Experimenting with plotting"
+
+# ╔═╡ a9b1815f-86df-46ad-b350-1bd0d5c73e5a
+md"### First plot: Score trajectory"
 
 # ╔═╡ 855115cc-c81a-441a-b405-66be35d1d28f
 begin
@@ -1683,9 +1676,8 @@ version = "3.5.0+0"
 # ╟─9be53374-d051-42c6-9e4b-bf5ab3260997
 # ╠═93aa3f9f-21d2-422d-b5db-2bbb1bf7e354
 # ╠═cf757ba2-5f47-427b-b15b-e5583f83073c
-# ╟─a9b1815f-86df-46ad-b350-1bd0d5c73e5a
-# ╠═4dc173b7-464a-4ac1-88e0-586fa084a77b
 # ╟─f5059b6b-6d98-4050-a54c-899f1727336f
+# ╟─a9b1815f-86df-46ad-b350-1bd0d5c73e5a
 # ╠═855115cc-c81a-441a-b405-66be35d1d28f
 # ╠═681fadb2-f463-41c5-912d-5b13005867d4
 # ╟─0961848d-8ba8-465b-af7e-817917341d7c
