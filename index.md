@@ -6,3 +6,4 @@ _Mini projects for learning julia_
 - [Subfolder notebook](testfolder/testnotebook.html)
 - [Root notebook](notebook_in_rote.html)
 - [Analysis of rommy](analysis-of-rommy/report-of-analysis.html)
+- [Experimenting with MNIST classification](MNIST-classification/notebook.jl)
