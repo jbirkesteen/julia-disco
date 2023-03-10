@@ -247,9 +247,6 @@ md"## Predicting a winner
 
 Use first 50 games to get the distribution of each player's points, draw many times from these distributions for the next 20 games and see who most often turns out winning."
 
-# ╔═╡ 83c3c22b-94ef-41e7-86b5-11bca8c608c1
-pois_rand(37.0)
-
 # ╔═╡ 16237c6b-b9d7-4ae9-afe1-ccdcf2f4a5e7
 begin
 	Random.seed!(6)
@@ -1683,7 +1680,6 @@ version = "3.5.0+0"
 # ╠═4e10ef20-cc5b-4a16-adfb-30e8b7829102
 # ╠═df735d17-00c1-4cbf-a64f-8c6f5947a948
 # ╠═97cf6bcb-715f-4209-a1e7-42e314f23863
-# ╠═83c3c22b-94ef-41e7-86b5-11bca8c608c1
 # ╠═16237c6b-b9d7-4ae9-afe1-ccdcf2f4a5e7
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
